@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eskom Alerts Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #f8f9fa;
+            --warning-color: #ff4444;
+            --medium-risk: #ffa500;
+            --success-color: #51cf66;
+            --info-color: #0dcaf0;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --sidebar-width: 250px;
+            --danger-color: #dc3545;
+            --chart-height: 300px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f5f6fa;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 10px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .logo span {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li.active a,
+        .sidebar ul li a:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
+
+        .alerts-header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .alerts-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .filter-btn:not(.active) {
+            background: var(--secondary-color);
+            color: var(--text-secondary);
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            min-width: 300px;
+        }
+
+        .dropdown-filter {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .alerts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .alerts-list {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .alert-item:hover {
+            background: var(--secondary-color);
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .alert-time {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .alert-details {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.resolve {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .action-btn.assign {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .alerts-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-chart {
+            height: var(--chart-height);
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--secondary-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .priority-list {
+            margin-top: 20px;
+        }
+
+        .priority-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .priority-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .priority-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .alert-item.new {
+            animation: pulse 2s infinite;
+            background-color: rgba(26, 115, 232, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .alerts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar .logo span,
+            .sidebar ul li a span {
+                display: none;
+            }
+
+            main {
+                margin-left: 70px;
+            }
+
+            .search-filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <img src="images/eskom_logo2.jpg" alt="Logo">
+            <span>Eskom Monitor</span>
+        </div>
+        <ul>
+            <li><a href="index.html"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+            <li class="active"><a href="alerts.html"><i class="fas fa-bell"></i> <span>Alerts</span></a></li>
+            <li><a href="map.html"><i class="fas fa-map-marker-alt"></i> <span>Map View</span></a></li>
+            <li><a href="reports.html"><i class="fas fa-chart-line"></i> <span>Reports</span></a></li>
+            <li><a href="technicians.html"><i class="fas fa-users"></i> <span>Technicians</span></a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="alerts-header">
+            <div class="alerts-title">
+                <h1>Alert Management System</h1>
+                <button class="action-btn" style="background: var(--primary-color); color: white;">
+                    <i class="fas fa-plus"></i> Create Alert
+                </button>
+            </div>
+            <div class="filters">
+                <button class="filter-btn active" data-priority="all">All Alerts</button>
+                <button class="filter-btn" data-priority="high">High Priority</button>
+                <button class="filter-btn" data-priority="medium">Medium Priority</button>
+                <button class="filter-btn" data-priority="low">Low Priority</button>
+                <button class="filter-btn" data-status="resolved">Resolved</button>
+            </div>
+            <div class="search-filters">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search alerts by location, type, or ID...">
+                <select id="sortSelect" class="dropdown-filter">
+                    <option value="">Sort By</option>
+                    <option value="newest">Newest First</option>
+                    <option value="priority">Priority</option>
+                    <option value="location">Location</option>
+                </select>
+                <select id="timeRangeSelect" class="dropdown-filter">
+                    <option value="">Time Range</option>
+                    <option value="24h">Last 24 Hours</option>
+                    <option value="7d">Last 7 Days</option>
+                    <option value="30d">Last 30 Days</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="alerts-grid">
+            <div class="alerts-list" id="alertsList">
+                <!-- Alerts will be populated by JavaScript -->
+            </div>
+
+            <div class="alerts-summary">
+                <h3>Alerts Overview</h3>
+                <div class="summary-chart">
+                    <canvas id="alertsChart"></canvas>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalAlerts">3</div>
+                        <div class="stat-label">Total Alerts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="activeAlerts">2</div>
+                        <div class="stat-label">Active Alerts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="resolvedToday">1</div>
+                        <div class="stat-label">Resolved Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgResponseTime">32m</div>
+                        <div class="stat-label">Avg Response Time</div>
+                    </div>
+                </div>
+
+                <h4>Priority Distribution</h4>
+                <div class="priority-list" id="priorityList">
+                    <!-- Priority items will be populated by JavaScript -->
+                </div>
+
+                <div class="pagination" id="pagination">
+                    <!-- Pagination buttons will be generated dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+   
+    <script>
+        class AlertsSystem {
+    constructor() {
+        this.mockAlerts = this.generateMockAlerts();
+        this.filteredAlerts = [...this.mockAlerts];
+        this.currentPage = 1;
+        this.alertsPerPage = 10;
+
+        this.initializeEventListeners();
+        this.renderAlerts();
+        this.updateStatistics();
+        this.renderPriorityDistribution();
+        this.renderAlertsChart();
+    }
+
+    generateMockAlerts() {
+        // Generate exactly 7 initial alerts with different priorities
+        const initialAlerts = [
+            {
+                id: 'ALT001',
+                title: 'Grid Tampering Detected',
+                location: 'Soweto - Block 5',
+                type: 'Grid Tampering',
+                priority: 'high',
+                status: 'active',
+                timestamp: new Date(Date.now() - 1000 * 60 * 30),
+                details: 'Unauthorized access to grid infrastructure detected.',
+                assignedTo: 'Team A',
+                responseTime: 45
+            },
+            {
+                id: 'ALT002',
+                title: 'Meter Bypass Alert',
+                location: 'Alexandra - Block 3',
+                type: 'Meter Bypass',
+                priority: 'high',
+                status: 'active',
+                timestamp: new Date(Date.now() - 1000 * 60 * 45),
+                details: 'Detected unusual meter reading patterns.',
+                assignedTo: 'Team B',
+                responseTime: 35
+            },
+            {
+                id: 'ALT003',
+                title: 'Usage Anomaly',
+                location: 'Tembisa - Block 8',
+                type: 'Usage Anomaly',
+                priority: 'medium',
+                status: 'active',
+                timestamp: new Date(Date.now() - 1000 * 60 * 60),
+                details: 'Unexpected power usage pattern detected.',
+                assignedTo: 'Team C',
+                responseTime: 25
+            },
+            {
+                id: 'ALT004',
+                title: 'Voltage Fluctuation',
+                location: 'Diepsloot - Block 2',
+                type: 'Voltage Fluctuation',
+                priority: 'medium',
+                status: 'resolved',
+                timestamp: new Date(Date.now() - 1000 * 60 * 90),
+                details: 'Significant voltage variations observed.',
+                assignedTo: 'Team A',
+                responseTime: 55
+            },
+            {
+                id: 'ALT005',
+                title: 'Unauthorized Connection',
+                location: 'Khayelitsha - Block 1',
+                type: 'Unauthorized Connection',
+                priority: 'high',
+                status: 'active',
+                timestamp: new Date(Date.now() - 1000 * 60 * 120),
+                details: 'Illegal connection to power grid detected.',
+                assignedTo: null,
+                responseTime: 0
+            },
+            {
+                id: 'ALT006',
+                title: 'Meter Malfunction',
+                location: 'Durban Central - Block 4',
+                type: 'Usage Anomaly',
+                priority: 'low',
+                status: 'active',
+                timestamp: new Date(Date.now() - 1000 * 60 * 150),
+                details: 'Smart meter reporting errors.',
+                assignedTo: 'Team D',
+                responseTime: 40
+            },
+            {
+                id: 'ALT007',
+                title: 'Power Theft Alert',
+                location: 'Phoenix - Block 6',
+                type: 'Grid Tampering',
+                priority: 'medium',
+                status: 'resolved',
+                timestamp: new Date(Date.now() - 1000 * 60 * 180),
+                details: 'Evidence of meter tampering detected.',
+                assignedTo: 'Team B',
+                responseTime: 30
+            }
+        ];
+
+        return initialAlerts;
+    }
+
+    initializeEventListeners() {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.filterAlerts(btn));
+        });
+
+        document.getElementById('searchInput').addEventListener('input', () => this.searchAlerts());
+        document.getElementById('sortSelect').addEventListener('change', () => this.sortAlerts());
+        document.getElementById('timeRangeSelect').addEventListener('change', () => this.filterByTimeRange());
+    }
+
+    filterAlerts(clickedBtn) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        clickedBtn.classList.add('active');
+
+        const priority = clickedBtn.dataset.priority;
+        const status = clickedBtn.dataset.status;
+
+        this.filteredAlerts = this.mockAlerts.filter(alert => {
+            if (priority === 'all') return true;
+            if (priority && priority !== 'all' && alert.priority !== priority) return false;
+            if (status && alert.status !== status) return false;
+            return true;
+        });
+
+        this.currentPage = 1;
+        this.renderAlerts();
+        this.updateStatistics();
+        this.renderPriorityDistribution();
+    }
+
+    searchAlerts() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        this.filteredAlerts = this.mockAlerts.filter(alert => 
+            alert.location.toLowerCase().includes(searchTerm) ||
+            alert.type.toLowerCase().includes(searchTerm) ||
+            alert.id.toLowerCase().includes(searchTerm)
+        );
+
+        this.currentPage = 1;
+        this.renderAlerts();
+        this.updateStatistics();
+    }
+
+    sortAlerts() {
+        const sortValue = document.getElementById('sortSelect').value;
+
+        switch(sortValue) {
+            case 'newest':
+                this.filteredAlerts.sort((a, b) => b.timestamp - a.timestamp);
+                break;
+            case 'priority':
+                const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                this.filteredAlerts.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+                break;
+            case 'location':
+                this.filteredAlerts.sort((a, b) => a.location.localeCompare(b.location));
+                break;
+        }
+
+        this.renderAlerts();
+    }
+
+    filterByTimeRange() {
+        const timeRange = document.getElementById('timeRangeSelect').value;
+        const now = new Date();
+
+        this.filteredAlerts = this.mockAlerts.filter(alert => {
+            const timeDiff = now - alert.timestamp;
+            switch(timeRange) {
+                case '24h': return timeDiff <= 24 * 60 * 60 * 1000;
+                case '7d': return timeDiff <= 7 * 24 * 60 * 60 * 1000;
+                case '30d': return timeDiff <= 30 * 24 * 60 * 60 * 1000;
+                default: return true;
+            }
+        });
+
+        this.currentPage = 1;
+        this.renderAlerts();
+        this.updateStatistics();
+    }
+
+    renderAlerts() {
+        const alertsList = document.getElementById('alertsList');
+        alertsList.innerHTML = '';
+
+        const startIndex = (this.currentPage - 1) * this.alertsPerPage;
+        const endIndex = startIndex + this.alertsPerPage;
+        const pageAlerts = this.filteredAlerts.slice(startIndex, endIndex);
+
+        pageAlerts.forEach(alert => {
+            const alertItem = document.createElement('div');
+            alertItem.classList.add('alert-item');
+            alertItem.classList.add(`priority-${alert.priority}`);
+            if (alert.status === 'active') alertItem.classList.add('new');
+
+            const priorityColor = {
+                'high': '#dc3545',
+                'medium': '#ffa500',
+                'low': '#51cf66'
+            };
+
+            alertItem.innerHTML = `
+                <div class="alert-icon" style="background-color: ${priorityColor[alert.priority]}">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-header">
+                        <span class="alert-title">${alert.title}</span>
+                        <span class="alert-time">${this.formatTimestamp(alert.timestamp)}</span>
+                    </div>
+                    <div class="alert-details">
+                        <p>ID: ${alert.id} | Location: ${alert.location} | Priority: ${alert.priority.toUpperCase()} | Status: ${alert.status.toUpperCase()}</p>
+                        <p>${alert.details}</p>
+                    </div>
+                    <div class="alert-actions">
+                        ${alert.status === 'active' ? 
+                            `<button class="action-btn resolve">Resolve</button>
+                             <button class="action-btn assign">Assign Team</button>` 
+                            : ''}
+                    </div>
+                </div>
+            `;
+
+            alertsList.appendChild(alertItem);
+        });
+
+        this.renderPagination();
+    }
+
+    renderPagination() {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        const totalPages = Math.ceil(this.filteredAlerts.length / this.alertsPerPage);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.classList.add('page-btn');
+            if (i === this.currentPage) pageBtn.classList.add('active');
+            pageBtn.textContent = i;
+
+            pageBtn.addEventListener('click', () => {
+                this.currentPage = i;
+                this.renderAlerts();
+            });
+
+            pagination.appendChild(pageBtn);
+        }
+    }
+
+    formatTimestamp(timestamp) {
+        const now = new Date();
+        const diff = now - timestamp;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+
+        if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    }
+
+    updateStatistics() {
+        const activeAlerts = this.filteredAlerts.filter(alert => alert.status === 'active');
+        const resolvedAlerts = this.filteredAlerts.filter(alert => alert.status === 'resolved');
+        const resolvedToday = resolvedAlerts.filter(alert => 
+            new Date(alert.timestamp).toDateString() === new Date().toDateString()
+        );
+
+        const avgResponseTime = resolvedAlerts.length 
+            ? Math.round(resolvedAlerts.reduce((sum, alert) => sum + alert.responseTime, 0) / resolvedAlerts.length) 
+            : 0;
+
+        document.getElementById('totalAlerts').textContent = this.filteredAlerts.length;
+        document.getElementById('activeAlerts').textContent = activeAlerts.length;
+        document.getElementById('resolvedToday').textContent = resolvedToday.length;
+        document.getElementById('avgResponseTime').textContent = `${avgResponseTime}m`;
+    }
+
+    renderPriorityDistribution() {
+        const priorityList = document.getElementById('priorityList');
+        priorityList.innerHTML = '';
+
+        const priorityColors = {
+            'high': '#dc3545',
+            'medium': '#ffa500',
+            'low': '#51cf66'
+        };
+
+        Object.keys(priorityColors).forEach(priority => {
+            const priorityCount = this.filteredAlerts.filter(alert => alert.priority === priority).length;
+            const percentage = Math.round((priorityCount / this.filteredAlerts.length) * 100) || 0;
+
+            const priorityItem = document.createElement('div');
+            priorityItem.classList.add('priority-item');
+            priorityItem.innerHTML = `
+                <div class="priority-info">
+                    <div class="priority-dot" style="background-color: ${priorityColors[priority]}"></div>
+                    <span>${priority.toUpperCase()} Priority</span>
+                </div>
+                <div class="priority-stats">
+                    <span>${priorityCount} Alerts (${percentage}%)</span>
+                </div>
+            `;
+
+            priorityList.appendChild(priorityItem);
+        });
+    }
+
+    renderAlertsChart() {
+        const ctx = document.getElementById('alertsChart').getContext('2d');
+        
+        const priorityCounts = {
+            high: { active: 0, resolved: 0 },
+            medium: { active: 0, resolved: 0 },
+            low: { active: 0, resolved: 0 }
+        };
+
+        this.mockAlerts.forEach(alert => {
+            priorityCounts[alert.priority][alert.status]++;
+        });
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['High Priority', 'Medium Priority', 'Low Priority'],
+                datasets: [
+                    {
+                        label: 'Active Alerts',
+                        data: [
+                            priorityCounts.high.active, 
+                            priorityCounts.medium.active, 
+                            priorityCounts.low.active
+                        ],
+                        backgroundColor: 'rgba(220, 53, 69, 0.6)'
+                    },
+                    {
+                        label: 'Resolved Alerts',
+                        data: [
+                            priorityCounts.high.resolved, 
+                            priorityCounts.medium.resolved, 
+                            priorityCounts.low.resolved
+                        ],
+                        backgroundColor: 'rgba(81, 207, 102, 0.6)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Alerts by Priority and Status'
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Initialize the Alerts System when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const alertSystem = new AlertsSystem();
+
+    // Add event listeners for action buttons
+    document.getElementById('alertsList').addEventListener('click', (e) => {
+        if (e.target.classList.contains('resolve')) {
+            alert('Alert resolved!');
+            // In a real implementation, this would update the alert status
+        }
+        if (e.target.classList.contains('assign')) {
+            alert('Assign to a team!');
+            // In a real implementation, this would open a team assignment modal
+        }
+    });
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Eskom Monitor - Map View</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <style>
+        :root {
+            --primary-blue: #0d6efd;
+            --background-gray: #f8f9fa;
+            --text-dark: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --success: #198754;
+            --medium: #fd7e14;
+        }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: var(--background-gray);
+            padding: 20px;
+            position: fixed;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1001;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo span {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin: 5px 0;
+            text-decoration: none;
+            color: var(--text-muted);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+        }
+
+        .nav-item.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .nav-item:hover:not(.active) {
+            background: var(--primary-blue);
+            color: black;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #map {
+            flex: 1;
+            width: calc(100vw - 250px);
+            height: 100vh;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: #ddd;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <img src="images/eskom_logo2.jpg" alt="Eskom Logo">
+            <span>Eskom Monitor</span>
+        </div>
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            Dashboard
+        </a>
+        <a href="alerts.html" class="nav-item">
+            <i class="fas fa-bell"></i>
+            Alerts
+        </a>
+        <a href="map.html" class="nav-item active">
+            <i class="fas fa-map-marker-alt"></i>
+            Map View
+        </a>
+        <a href="reports.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            Reports
+        </a>
+        <a href="technicians.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            Technicians
+        </a>
+    </nav>
+    
+    <div class="main-content">
+        <div id="map"></div>
+        <div class="legend">
+            <h4>Risk Levels</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff4444"></div>
+                <span>High Risk Area</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffaa00"></div>
+                <span>Medium Risk Area</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #44ff44"></div>
+                <span>Low Risk Area</span>
+            </div>
+            <h4>Markers</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2196F3"></div>
+                <span>Active Alert</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4CAF50"></div>
+                <span>Technician Deployed</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9C27B0"></div>
+                <span>Needs Technician</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize map centered on South Africa
+        const map = L.map('map').setView([-30.5595, 22.9375], 6);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Sample data for risk areas (you would replace these with real coordinates)
+        const highRiskAreas = [
+            [[-26.2041, 28.0473], [-26.2741, 28.1473], [-26.1341, 28.1473]], // Johannesburg
+            [[-33.9249, 18.4241], [-33.9849, 18.5241], [-33.8649, 18.5241]]  // Cape Town
+        ];
+
+        const mediumRiskAreas = [
+            [[-29.8587, 31.0218], [-29.9187, 31.1218], [-29.7987, 31.1218]], // Durban
+            [[-25.7479, 28.2293], [-25.8079, 28.3293], [-25.6879, 28.3293]]  // Pretoria
+        ];
+
+        const lowRiskAreas = [
+            [[-32.2968, 24.5503], [-32.3568, 24.6503], [-32.2368, 24.6503]], // Graaff-Reinet
+            [[-27.7799, 23.0598], [-27.8399, 23.1598], [-27.7199, 23.1598]]  // Kimberley
+        ];
+
+        // Add risk areas to map
+        highRiskAreas.forEach(area => {
+            L.polygon(area, {color: '#ff4444', fillOpacity: 0.3}).addTo(map);
+        });
+
+        mediumRiskAreas.forEach(area => {
+            L.polygon(area, {color: '#ffaa00', fillOpacity: 0.3}).addTo(map);
+        });
+
+        lowRiskAreas.forEach(area => {
+            L.polygon(area, {color: '#44ff44', fillOpacity: 0.3}).addTo(map);
+        });
+
+        // Add sample markers
+        L.marker([-26.2041, 28.0473], {
+            icon: L.divIcon({className: 'marker-icon', html: '🔴'})
+        }).addTo(map).bindPopup('Active Alert: Meter Tampering Detected');
+
+        L.marker([-33.9249, 18.4241], {
+            icon: L.divIcon({className: 'marker-icon', html: '🟢'})
+        }).addTo(map).bindPopup('Technician Deployed: Investigating Alert #4327');
+
+        L.marker([-29.8587, 31.0218], {
+            icon: L.divIcon({className: 'marker-icon', html: '🟣'})
+        }).addTo(map).bindPopup('Needs Technician: Multiple Alerts Reported');
+    </script>
+</body>
+</html>

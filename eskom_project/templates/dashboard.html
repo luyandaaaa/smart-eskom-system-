@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WattsGuard | Smart City Electricity Protection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #f8f9fa;
+            --warning-color: #ff4444;
+            --success-color: #51cf66;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f5f6fa;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 10px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .logo span {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li.active a,
+        .sidebar ul li a:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
+
+        .hero-banner {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .hero-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .hero-overlay h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-overlay p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin-bottom: 25px;
+        }
+
+        .cta-button {
+            padding: 12px 30px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .cta-button:hover {
+            background: #0d5bba;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .view-all {
+            font-size: 0.8em;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--secondary-color);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .impact-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(26, 115, 232, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .impact-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .impact-item i {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        #cityMapContainer {
+            grid-column: span 2;
+        }
+
+        #cityMap {
+            height: 400px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease;
+        }
+
+        .alert-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: var(--warning-color);
+        }
+
+        .alert-details h4 {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .alert-details p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .zone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease;
+        }
+
+        .zone-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .zone-info h4 {
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .zone-info p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .risk-level {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .risk-high {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .risk-medium {
+            background: #ffa500;
+            color: white;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            #cityMapContainer {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar .logo span,
+            .sidebar ul li a span {
+                display: none; 
+            }
+
+            main {
+                margin-left: 70px;
+            }
+
+            .hero-overlay h1 {
+                font-size: 1.8rem;
+            }
+            
+            .hero-overlay p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/eskom_logo2.jpg') }}" alt="Eskom Logo" class="logo">
+            <span>WattsGuard</span>
+        </div>
+        <ul>
+            <li class="active"><a href="#"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+            <li><a href="alerts.html"><i class="fas fa-bell"></i> <span>Alerts</span></a></li>
+            <li><a href="map.html"><i class="fas fa-map-marker-alt"></i> <span>Map View</span></a></li>
+            <li><a href="reports.html"><i class="fas fa-chart-line"></i> <span>Reports</span></a></li>
+            <li><a href="technicians.html"><i class="fas fa-users"></i> <span>Technicians</span></a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+            <img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80" alt="Smart City">
+            <div class="hero-overlay">
+                <h1>Smart City Electricity Protection</h1>
+                <p>WattsGuard uses AI to detect and prevent electricity theft, helping cities save millions and build sustainable energy infrastructure</p>
+                <button class="cta-button">See Live Demo</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- System Overview Card -->
+            <div class="card">
+                <h3>System Overview</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="activeAlerts">24</span>
+                        <span class="stat-label">Active Alerts</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="detectionAccuracy">94%</span>
+                        <span class="stat-label">Detection Accuracy</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="techniciansDeployed">18</span>
+                        <span class="stat-label">Technicians Deployed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="estimatedSavings">R2.1M</span>
+                        <span class="stat-label">Estimated Savings</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart City Impact Card -->
+            <div class="card">
+                <h3>Smart City Impact</h3>
+                <div class="stats-grid">
+                    <div class="impact-item">
+                        <i class="fas fa-bolt"></i>
+                        <span class="stat-value" id="energy-saved">12,540</span>
+                        <span class="stat-label">kWh Saved</span>
+                    </div>
+                    <div class="impact-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span class="stat-value" id="thefts-prevented">42</span>
+                        <span class="stat-label">Thefts Prevented</span>
+                    </div>
+                    <div class="impact-item">
+                        <i class="fas fa-rand-sign"></i>
+                        <span class="stat-value" id="revenue-protected">R34,108</span>
+                        <span class="stat-label">Revenue Protected</span>
+                    </div>
+                    <div class="impact-item">
+                        <i class="fas fa-leaf"></i>
+                        <span class="stat-value" id="co2-reduced">10,659 kg</span>
+                        <span class="stat-label">CO₂ Reduced</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Grid Visualization -->
+            <div class="card" id="cityMapContainer">
+                <h3>Smart Grid Visualization <span class="view-all">Live View</span></h3>
+                <div id="cityMap"></div>
+            </div>
+
+            <!-- Recent Alerts -->
+            <div class="card">
+                <h3>Recent Alerts <span class="view-all">View All</span></h3>
+                <div class="alert-list" id="alertList">
+                    <div class="alert-item">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="alert-details">
+                            <h4>Meter Bypass Detected</h4>
+                            <p>Soweto Block A • 15 minutes ago</p>
+                        </div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="alert-details">
+                            <h4>Unusual Consumption Pattern</h4>
+                            <p>Alexandra Zone 3 • 42 minutes ago</p>
+                        </div>
+                    </div>
+                    <div class="alert-item">
+                        <div class="alert-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="alert-details">
+                            <h4>Voltage Fluctuation</h4>
+                            <p>Tembisa Sector 2 • 1 hour ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- High Risk Areas -->
+            <div class="card">
+                <h3>High Risk Areas <span class="view-all">View All</span></h3>
+                <div class="zone-list" id="zoneList">
+                    <div class="zone-item">
+                        <div class="zone-info">
+                            <h4>Soweto Block A</h4>
+                            <p>18 incidents reported</p>
+                        </div>
+                        <span class="risk-level risk-high">HIGH RISK</span>
+                    </div>
+                    <div class="zone-item">
+                        <div class="zone-info">
+                            <h4>Alexandra Zone 3</h4>
+                            <p>12 incidents reported</p>
+                        </div>
+                        <span class="risk-level risk-high">HIGH RISK</span>
+                    </div>
+                    <div class="zone-item">
+                        <div class="zone-info">
+                            <h4>Tembisa Sector 2</h4>
+                            <p>8 incidents reported</p>
+                        </div>
+                        <span class="risk-level risk-medium">MEDIUM RISK</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize Smart City Map
+        const cityMap = L.map('cityMap').setView([-26.2041, 28.0473], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(cityMap);
+
+        // Add grid areas with different risk levels
+        const highRiskArea = L.circle([-26.2041, 28.0473], {
+            color: '#ff4444',
+            fillColor: '#ff4444',
+            fillOpacity: 0.3,
+            radius: 2000
+        }).addTo(cityMap).bindPopup('<b>High Risk Area</b><br>Soweto Block A');
+
+        const mediumRiskArea = L.circle([-26.2141, 28.0373], {
+            color: '#ffa500',
+            fillColor: '#ffa500',
+            fillOpacity: 0.3,
+            radius: 1500
+        }).addTo(cityMap).bindPopup('<b>Medium Risk Area</b><br>Alexandra Zone 3');
+
+        const lowRiskArea = L.circle([-26.1941, 28.0573], {
+            color: '#51cf66',
+            fillColor: '#51cf66',
+            fillOpacity: 0.3,
+            radius: 1000
+        }).addTo(cityMap).bindPopup('<b>Low Risk Area</b><br>Tembisa Sector 2');
+
+        // Add markers for active alerts
+        L.marker([-26.2041, 28.0473], {
+            icon: L.divIcon({
+                className: 'pulse-icon',
+                html: '<div class="pulse-effect"><i class="fas fa-bolt"></i></div>',
+                iconSize: [30, 30]
+            })
+        }).addTo(cityMap).bindPopup('<b>Active Alert</b><br>Meter tampering detected');
+
+        // Simulate real-time updates
+        function updateMetrics() {
+            // These would come from your API in a real implementation
+            const metrics = {
+                activeAlerts: Math.floor(20 + Math.random() * 10),
+                energySaved: 12540 + Math.floor(Math.random() * 500),
+                theftsPrevented: 42 + Math.floor(Math.random() * 3),
+                revenueProtected: 34108 + Math.floor(Math.random() * 1000),
+                co2Reduced: 10659 + Math.floor(Math.random() * 300)
+            };
+
+            document.getElementById('activeAlerts').textContent = metrics.activeAlerts;
+            document.getElementById('energy-saved').textContent = metrics.energySaved.toLocaleString();
+            document.getElementById('thefts-prevented').textContent = metrics.theftsPrevented;
+            document.getElementById('revenue-protected').textContent = `R${metrics.revenueProtected.toLocaleString()}`;
+            document.getElementById('co2-reduced').textContent = `${metrics.co2Reduced.toLocaleString()} kg`;
+        }
+
+        // Update metrics every 5 seconds
+        setInterval(updateMetrics, 5000);
+        updateMetrics(); // Initial update
+
+        // Add pulse effect to active alerts
+        const style = document.createElement('style');
+        style.textContent = `
+            .pulse-effect {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: #ff4444;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+                0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
+                70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 68, 68, 0); }
+                100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
