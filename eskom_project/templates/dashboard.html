@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WattsGuard | Smart City Electricity Protection</title>
+    <title>WattsGuard | Admin Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <style>
@@ -90,66 +90,25 @@
             padding: 20px;
         }
 
-        .hero-banner {
-            position: relative;
-            height: 300px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .hero-banner img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
+        .header {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            color: white;
-            text-align: center;
-            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        .hero-overlay h1 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        .header h1 {
+            color: var(--text-primary);
+            font-size: 1.8rem;
         }
 
-        .hero-overlay p {
-            font-size: 1.2rem;
-            max-width: 800px;
-            margin-bottom: 25px;
-        }
-
-        .cta-button {
-            padding: 12px 30px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 30px;
+        .area-selector {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: white;
             font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .cta-button:hover {
-            background: #0d5bba;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+            color: var(--text-primary);
         }
 
         .dashboard-grid {
@@ -235,6 +194,12 @@
             margin-top: 10px;
         }
 
+        .chart-container {
+            height: 300px;
+            margin-top: 10px;
+            position: relative;
+        }
+
         .alert-item {
             display: flex;
             align-items: center;
@@ -256,7 +221,18 @@
             align-items: center;
             justify-content: center;
             color: white;
+        }
+
+        .alert-warning {
             background: var(--warning-color);
+        }
+
+        .alert-success {
+            background: var(--success-color);
+        }
+
+        .alert-info {
+            background: var(--primary-color);
         }
 
         .alert-details h4 {
@@ -309,6 +285,57 @@
             color: white;
         }
 
+        .risk-low {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .meter-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-active {
+            background-color: var(--success-color);
+        }
+
+        .status-inactive {
+            background-color: var(--warning-color);
+        }
+
+        .status-suspicious {
+            background-color: #ffa500;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
         @media (max-width: 1200px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -336,14 +363,24 @@
             main {
                 margin-left: 70px;
             }
-
-            .hero-overlay h1 {
-                font-size: 1.8rem;
-            }
-            
-            .hero-overlay p {
-                font-size: 1rem;
-            }
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            font-size: 1.2em;
+            color: var(--text-secondary);
+        }
+        
+        .loading i {
+            margin-right: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -356,23 +393,23 @@
         </div>
         <ul>
             <li class="active"><a href="#"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
-            <li><a href="alerts.html"><i class="fas fa-bell"></i> <span>Alerts</span></a></li>
-            <li><a href="map.html"><i class="fas fa-map-marker-alt"></i> <span>Map View</span></a></li>
-            <li><a href="reports.html"><i class="fas fa-chart-line"></i> <span>Reports</span></a></li>
-            <li><a href="technicians.html"><i class="fas fa-users"></i> <span>Technicians</span></a></li>
+            <li><a href="{{ url_for('alerts') }}"><i class="fas fa-bell"></i> <span>Alerts</span></a></li>
+            <li><a href="{{ url_for('map_view') }}"><i class="fas fa-map-marker-alt"></i> <span>Map View</span></a></li>
+            <li><a href="{{ url_for('reports') }}"><i class="fas fa-chart-line"></i> <span>Reports</span></a></li>
+            <li><a href="{{ url_for('technicians') }}"><i class="fas fa-users"></i> <span>Technicians</span></a></li>
         </ul>
     </nav>
 
-    <!-- Main Content -->
+    
     <main>
-        <!-- Hero Banner -->
-        <div class="hero-banner">
-            <img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80" alt="Smart City">
-            <div class="hero-overlay">
-                <h1>Smart City Electricity Protection</h1>
-                <p>WattsGuard uses AI to detect and prevent electricity theft, helping cities save millions and build sustainable energy infrastructure</p>
-                <button class="cta-button">See Live Demo</button>
-            </div>
+        <!-- Header with Area Selector -->
+        <div class="header">
+            <h1>Electricity Monitoring Dashboard</h1>
+            <select id="areaSelector" class="area-selector">
+                <option value="all">All Areas</option>
+                <option value="soweto">Soweto</option>
+                <option value="tembisa">Tembisa</option>
+            </select>
         </div>
 
         <!-- Dashboard Grid -->
@@ -382,47 +419,69 @@
                 <h3>System Overview</h3>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <span class="stat-value" id="activeAlerts">24</span>
-                        <span class="stat-label">Active Alerts</span>
+                        <span class="stat-value" id="totalMeters">0</span>
+                        <span class="stat-label">Total Meters</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-value" id="detectionAccuracy">94%</span>
-                        <span class="stat-label">Detection Accuracy</span>
+                        <span class="stat-value" id="activeMeters">0</span>
+                        <span class="stat-label">Active Meters</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-value" id="techniciansDeployed">18</span>
-                        <span class="stat-label">Technicians Deployed</span>
+                        <span class="stat-value" id="suspiciousMeters">0</span>
+                        <span class="stat-label">Suspicious</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-value" id="estimatedSavings">R2.1M</span>
-                        <span class="stat-label">Estimated Savings</span>
+                        <span class="stat-value" id="totalRevenue">R0</span>
+                        <span class="stat-label">Total Revenue</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Smart City Impact Card -->
+            <!-- Electricity Consumption Card -->
             <div class="card">
-                <h3>Smart City Impact</h3>
+                <h3>Electricity Consumption</h3>
                 <div class="stats-grid">
                     <div class="impact-item">
                         <i class="fas fa-bolt"></i>
-                        <span class="stat-value" id="energy-saved">12,540</span>
-                        <span class="stat-label">kWh Saved</span>
+                        <span class="stat-value" id="totalKwh">0</span>
+                        <span class="stat-label">Total kWh</span>
                     </div>
                     <div class="impact-item">
-                        <i class="fas fa-shield-alt"></i>
-                        <span class="stat-value" id="thefts-prevented">42</span>
-                        <span class="stat-label">Thefts Prevented</span>
+                        <i class="fas fa-chart-line"></i>
+                        <span class="stat-value" id="avgConsumption">0</span>
+                        <span class="stat-label">Avg kWh/HH</span>
                     </div>
                     <div class="impact-item">
-                        <i class="fas fa-rand-sign"></i>
-                        <span class="stat-value" id="revenue-protected">R34,108</span>
-                        <span class="stat-label">Revenue Protected</span>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span class="stat-value" id="anomaliesDetected">0</span>
+                        <span class="stat-label">Anomalies</span>
                     </div>
                     <div class="impact-item">
-                        <i class="fas fa-leaf"></i>
-                        <span class="stat-value" id="co2-reduced">10,659 kg</span>
-                        <span class="stat-label">CO₂ Reduced</span>
+                        <i class="fas fa-clock"></i>
+                        <span class="stat-value" id="peakTime">-</span>
+                        <span class="stat-label">Peak Time</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consumption Trends -->
+            <div class="card">
+                <h3>Consumption Trends <span class="view-all">View Report</span></h3>
+                <div class="chart-container">
+                    <canvas id="consumptionChart"></canvas>
+                    <div class="loading" id="consumptionLoading">
+                        <i class="fas fa-spinner"></i> Loading consumption data...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meter Status Distribution -->
+            <div class="card">
+                <h3>Meter Status <span class="view-all">View All</span></h3>
+                <div class="chart-container">
+                    <canvas id="meterStatusChart"></canvas>
+                    <div class="loading" id="statusLoading">
+                        <i class="fas fa-spinner"></i> Loading meter status...
                     </div>
                 </div>
             </div>
@@ -430,40 +489,45 @@
             <!-- Smart Grid Visualization -->
             <div class="card" id="cityMapContainer">
                 <h3>Smart Grid Visualization <span class="view-all">Live View</span></h3>
-                <div id="cityMap"></div>
+                <div id="cityMap">
+                    <div class="loading" id="mapLoading">
+                        <i class="fas fa-spinner"></i> Loading map data...
+                    </div>
+                </div>
             </div>
 
             <!-- Recent Alerts -->
             <div class="card">
                 <h3>Recent Alerts <span class="view-all">View All</span></h3>
                 <div class="alert-list" id="alertList">
-                    <div class="alert-item">
-                        <div class="alert-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="alert-details">
-                            <h4>Meter Bypass Detected</h4>
-                            <p>Soweto Block A • 15 minutes ago</p>
-                        </div>
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Loading alerts...
                     </div>
-                    <div class="alert-item">
-                        <div class="alert-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="alert-details">
-                            <h4>Unusual Consumption Pattern</h4>
-                            <p>Alexandra Zone 3 • 42 minutes ago</p>
-                        </div>
-                    </div>
-                    <div class="alert-item">
-                        <div class="alert-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="alert-details">
-                            <h4>Voltage Fluctuation</h4>
-                            <p>Tembisa Sector 2 • 1 hour ago</p>
-                        </div>
-                    </div>
+                </div>
+            </div>
+
+            <!-- Suspicious Meters -->
+            <div class="card">
+                <h3>Suspicious Meters <span class="view-all">View All</span></h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Meter</th>
+                                <th>Address</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Last Reading</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suspiciousMetersTable">
+                            <tr>
+                                <td colspan="5" class="loading">
+                                    <i class="fas fa-spinner"></i> Loading suspicious meters...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -471,26 +535,8 @@
             <div class="card">
                 <h3>High Risk Areas <span class="view-all">View All</span></h3>
                 <div class="zone-list" id="zoneList">
-                    <div class="zone-item">
-                        <div class="zone-info">
-                            <h4>Soweto Block A</h4>
-                            <p>18 incidents reported</p>
-                        </div>
-                        <span class="risk-level risk-high">HIGH RISK</span>
-                    </div>
-                    <div class="zone-item">
-                        <div class="zone-info">
-                            <h4>Alexandra Zone 3</h4>
-                            <p>12 incidents reported</p>
-                        </div>
-                        <span class="risk-level risk-high">HIGH RISK</span>
-                    </div>
-                    <div class="zone-item">
-                        <div class="zone-info">
-                            <h4>Tembisa Sector 2</h4>
-                            <p>8 incidents reported</p>
-                        </div>
-                        <span class="risk-level risk-medium">MEDIUM RISK</span>
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Loading risk areas...
                     </div>
                 </div>
             </div>
@@ -500,66 +546,345 @@
     <!-- JavaScript Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     
     <script>
-        // Initialize Smart City Map
-        const cityMap = L.map('cityMap').setView([-26.2041, 28.0473], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(cityMap);
+        // Global variables for charts and map
+        let consumptionChart, meterStatusChart, cityMap;
 
-        // Add grid areas with different risk levels
-        const highRiskArea = L.circle([-26.2041, 28.0473], {
-            color: '#ff4444',
-            fillColor: '#ff4444',
-            fillOpacity: 0.3,
-            radius: 2000
-        }).addTo(cityMap).bindPopup('<b>High Risk Area</b><br>Soweto Block A');
-
-        const mediumRiskArea = L.circle([-26.2141, 28.0373], {
-            color: '#ffa500',
-            fillColor: '#ffa500',
-            fillOpacity: 0.3,
-            radius: 1500
-        }).addTo(cityMap).bindPopup('<b>Medium Risk Area</b><br>Alexandra Zone 3');
-
-        const lowRiskArea = L.circle([-26.1941, 28.0573], {
-            color: '#51cf66',
-            fillColor: '#51cf66',
-            fillOpacity: 0.3,
-            radius: 1000
-        }).addTo(cityMap).bindPopup('<b>Low Risk Area</b><br>Tembisa Sector 2');
-
-        // Add markers for active alerts
-        L.marker([-26.2041, 28.0473], {
-            icon: L.divIcon({
-                className: 'pulse-icon',
-                html: '<div class="pulse-effect"><i class="fas fa-bolt"></i></div>',
-                iconSize: [30, 30]
-            })
-        }).addTo(cityMap).bindPopup('<b>Active Alert</b><br>Meter tampering detected');
-
-        // Simulate real-time updates
-        function updateMetrics() {
-            // These would come from your API in a real implementation
-            const metrics = {
-                activeAlerts: Math.floor(20 + Math.random() * 10),
-                energySaved: 12540 + Math.floor(Math.random() * 500),
-                theftsPrevented: 42 + Math.floor(Math.random() * 3),
-                revenueProtected: 34108 + Math.floor(Math.random() * 1000),
-                co2Reduced: 10659 + Math.floor(Math.random() * 300)
-            };
-
-            document.getElementById('activeAlerts').textContent = metrics.activeAlerts;
-            document.getElementById('energy-saved').textContent = metrics.energySaved.toLocaleString();
-            document.getElementById('thefts-prevented').textContent = metrics.theftsPrevented;
-            document.getElementById('revenue-protected').textContent = `R${metrics.revenueProtected.toLocaleString()}`;
-            document.getElementById('co2-reduced').textContent = `${metrics.co2Reduced.toLocaleString()} kg`;
+        // Initialize the dashboard with data
+        async function initDashboard(area = 'all') {
+            // Show loading states
+            showLoading(true);
+            
+            try {
+                // Load all data needed for the dashboard
+                const [summaryStats, consumptionTrends, alerts, riskAreas] = await Promise.all([
+                    fetchData('/api/summary-stats'),
+                    fetchData('/api/consumption-trends'),
+                    fetchData('/api/alerts'),
+                    fetchData('/api/high-risk-areas')
+                ]);
+                
+                // Update all dashboard components
+                updateSummaryStats(summaryStats, area);
+                updateConsumptionChart(consumptionTrends, area);
+                updateMeterStatusChart(summaryStats, area);
+                updateAlerts(alerts, area);
+                updateSuspiciousMeters(summaryStats, area);
+                updateHighRiskAreas(riskAreas, area);
+                updateMap(area);
+                
+                // Hide loading states
+                showLoading(false);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showErrorStates();
+            }
         }
 
-        // Update metrics every 5 seconds
-        setInterval(updateMetrics, 5000);
-        updateMetrics(); // Initial update
+        // Fetch data from the API
+        async function fetchData(endpoint) {
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                throw new Error(`API request failed: ${response.status}`);
+            }
+            return await response.json();
+        }
+
+        // Show/hide loading indicators
+        function showLoading(show) {
+            document.querySelectorAll('.loading').forEach(el => {
+                el.style.display = show ? 'flex' : 'none';
+            });
+        }
+
+        // Show error states when data fails to load
+        function showErrorStates() {
+            document.querySelectorAll('.loading').forEach(el => {
+                el.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed to load data';
+            });
+        }
+
+        // Update summary statistics
+        function updateSummaryStats(data, area) {
+            const stats = area === 'all' ? data.all : data[area];
+            
+            document.getElementById('totalMeters').textContent = stats.total_meters;
+            document.getElementById('activeMeters').textContent = stats.active_meters;
+            document.getElementById('suspiciousMeters').textContent = stats.suspicious_meters;
+            document.getElementById('totalRevenue').textContent = `R${stats.total_revenue.toFixed(2)}`;
+            document.getElementById('totalKwh').textContent = stats.total_kwh.toFixed(0);
+            document.getElementById('avgConsumption').textContent = stats.avg_kwh.toFixed(1);
+            document.getElementById('anomaliesDetected').textContent = stats.suspicious_meters;
+            document.getElementById('peakTime').textContent = stats.peak_time;
+        }
+
+        // Update consumption chart
+        function updateConsumptionChart(data, area) {
+            const ctx = document.getElementById('consumptionChart').getContext('2d');
+            
+            if (consumptionChart) {
+                consumptionChart.destroy();
+            }
+            
+            consumptionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'kWh Consumption',
+                        data: data.data,
+                        borderColor: '#1a73e8',
+                        backgroundColor: 'rgba(26, 115, 232, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'kWh'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update meter status chart
+        function updateMeterStatusChart(data, area) {
+            const ctx = document.getElementById('meterStatusChart').getContext('2d');
+            const stats = area === 'all' ? data.all : data[area];
+            
+            if (meterStatusChart) {
+                meterStatusChart.destroy();
+            }
+            
+            meterStatusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active', 'Inactive', 'Suspicious'],
+                    datasets: [{
+                        data: [
+                            stats.active_meters,
+                            stats.inactive_meters,
+                            stats.suspicious_meters
+                        ],
+                        backgroundColor: [
+                            '#51cf66',
+                            '#ff4444',
+                            '#ffa500'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update alerts
+        function updateAlerts(alerts, area) {
+            const alertList = document.getElementById('alertList');
+            alertList.innerHTML = '';
+            
+            // Filter by area if needed
+            const filteredAlerts = area === 'all' ? alerts : 
+                alerts.filter(alert => alert.area === area);
+            
+            if (filteredAlerts.length === 0) {
+                alertList.innerHTML = '<div class="alert-item"><p>No alerts found for this area</p></div>';
+                return;
+            }
+            
+            filteredAlerts.forEach(alert => {
+                const alertItem = document.createElement('div');
+                alertItem.className = 'alert-item';
+                
+                alertItem.innerHTML = `
+                    <div class="alert-icon alert-${alert.type}">
+                        <i class="fas ${alert.icon}"></i>
+                    </div>
+                    <div class="alert-details">
+                        <h4>${alert.title}</h4>
+                        <p>${alert.location} • ${alert.time}</p>
+                    </div>
+                `;
+                
+                alertList.appendChild(alertItem);
+            });
+        }
+
+        // Update suspicious meters table
+        async function updateSuspiciousMeters(data, area) {
+            const tableBody = document.getElementById('suspiciousMetersTable');
+            tableBody.innerHTML = '';
+            
+            // Get all meters data
+            const meterData = await fetchData('/api/meter-data');
+            let allMeters = meterData.all_meters;
+            
+            // Filter by area if needed
+            if (area !== 'all') {
+                allMeters = allMeters.filter(meter => meter.area === area);
+            }
+            
+            // Filter suspicious meters
+            const suspiciousMeters = allMeters.filter(meter => meter.status === 'suspicious').slice(0, 5);
+            
+            if (suspiciousMeters.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No suspicious meters found</td></tr>';
+                return;
+            }
+            
+            suspiciousMeters.forEach(meter => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${meter.meter_number}</td>
+                    <td>${meter.address}</td>
+                    <td>${meter.meter_type}</td>
+                    <td><span class="meter-status status-suspicious"></span> Suspicious</td>
+                    <td>${meter.kwh_purchased} kWh (R${meter.amount_paid.toFixed(2)})</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update high risk areas
+        function updateHighRiskAreas(riskAreas, area) {
+            const zoneList = document.getElementById('zoneList');
+            zoneList.innerHTML = '';
+            
+            // Filter by area if needed
+            const filteredAreas = area === 'all' ? riskAreas : 
+                riskAreas.filter(zone => zone.area === area);
+            
+            if (filteredAreas.length === 0) {
+                zoneList.innerHTML = '<div class="zone-item"><p>No high risk areas found</p></div>';
+                return;
+            }
+            
+            filteredAreas.forEach(zone => {
+                const zoneItem = document.createElement('div');
+                zoneItem.className = 'zone-item';
+                
+                zoneItem.innerHTML = `
+                    <div class="zone-info">
+                        <h4>${zone.name}</h4>
+                        <p>${zone.incidents} incidents reported</p>
+                    </div>
+                    <span class="risk-level risk-${zone.risk}">${zone.risk.toUpperCase()} RISK</span>
+                `;
+                
+                zoneList.appendChild(zoneItem);
+            });
+        }
+
+        // Update the map visualization
+        function updateMap(area) {
+            // Remove existing map if it exists
+            if (cityMap) {
+                cityMap.remove();
+            }
+            
+            // Coordinates for Soweto and Tembisa
+            const sowetoCoords = [-26.2675, 27.8585];
+            const tembisaCoords = [-25.9988, 28.1791];
+            
+            // Set initial view based on selected area
+            let center, zoom;
+            if (area === 'soweto') {
+                center = sowetoCoords;
+                zoom = 13;
+            } else if (area === 'tembisa') {
+                center = tembisaCoords;
+                zoom = 13;
+            } else {
+                // Center between both areas for "all" view
+                center = [-26.1332, 28.0188];
+                zoom = 11;
+            }
+            
+            // Initialize map
+            cityMap = L.map('cityMap').setView(center, zoom);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(cityMap);
+            
+            // Add markers for each area
+            if (area === 'all' || area === 'soweto') {
+                const sowetoArea = L.circle(sowetoCoords, {
+                    color: area === 'soweto' ? '#ff4444' : '#1a73e8',
+                    fillColor: area === 'soweto' ? '#ff4444' : '#1a73e8',
+                    fillOpacity: 0.3,
+                    radius: 2000
+                }).addTo(cityMap).bindPopup('<b>Soweto</b><br>Smart meters monitoring area');
+                
+                // Add sample alert markers (in a real app, these would come from your data)
+                L.marker([-26.2675, 27.8585], {
+                    icon: L.divIcon({
+                        className: 'pulse-icon',
+                        html: '<div class="pulse-effect"><i class="fas fa-bolt"></i></div>',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(cityMap).bindPopup('<b>Alert</b><br>High consumption detected in Block A');
+            }
+            
+            if (area === 'all' || area === 'tembisa') {
+                const tembisaArea = L.circle(tembisaCoords, {
+                    color: area === 'tembisa' ? '#ff4444' : '#1a73e8',
+                    fillColor: area === 'tembisa' ? '#ff4444' : '#1a73e8',
+                    fillOpacity: 0.3,
+                    radius: 1500
+                }).addTo(cityMap).bindPopup('<b>Tembisa</b><br>Smart meters monitoring area');
+                
+                // Add sample alert markers
+                L.marker([-25.9988, 28.1791], {
+                    icon: L.divIcon({
+                        className: 'pulse-icon',
+                        html: '<div class="pulse-effect"><i class="fas fa-exclamation-triangle"></i></div>',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(cityMap).bindPopup('<b>Alert</b><br>Potential meter tampering in Block B');
+            }
+        }
+
+        // Handle area selector change
+        document.getElementById('areaSelector').addEventListener('change', function() {
+            initDashboard(this.value);
+        });
 
         // Add pulse effect to active alerts
         const style = document.createElement('style');
@@ -583,6 +908,11 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Initialize the dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initDashboard();
+        });
     </script>
 </body>
 </html>

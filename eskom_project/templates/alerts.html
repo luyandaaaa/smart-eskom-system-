@@ -368,11 +368,11 @@
             <span>Eskom Monitor</span>
         </div>
         <ul>
-            <li><a href="index.html"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+            <li><a href="{{ url_for('dashboard')}}"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
             <li class="active"><a href="alerts.html"><i class="fas fa-bell"></i> <span>Alerts</span></a></li>
-            <li><a href="map.html"><i class="fas fa-map-marker-alt"></i> <span>Map View</span></a></li>
-            <li><a href="reports.html"><i class="fas fa-chart-line"></i> <span>Reports</span></a></li>
-            <li><a href="technicians.html"><i class="fas fa-users"></i> <span>Technicians</span></a></li>
+            <li><a href="{{ url_for('map_view') }}"><i class="fas fa-map-marker-alt"></i> <span>Map View</span></a></li>
+            <li><a href="{{ url_for('reports') }}"><i class="fas fa-chart-line"></i> <span>Reports</span></a></li>
+            <li><a href="{{ url_for('technicians') }}"><i class="fas fa-users"></i> <span>Technicians</span></a></li>
         </ul>
     </nav>
 

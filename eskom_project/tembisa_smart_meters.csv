@@ -1,0 +1,31 @@
+meter_number,household_name,address,purchase_date,purchase_time,kwh_purchased,amount_paid,supplier,meter_type
+TSAM-A001,Sipho Mabaso,Block A House 1 Tembisa,2/6/2024,10:15:22,145,R394.40,City Power,smart
+TSAM-A002,Bongiwe Nhlapo,Block A House 2 Tembisa,2/11/2024,13:45:30,0,R0.00,City Power,smart
+TSAM-A003,David Mashaba,Block A House 3 Tembisa,2/3/2025,9:30:18,165,R448.80,City Power,smart
+TSAM-A004,Precious Nkuna,Block A House 4 Tembisa,2/8/2024,14:20:45,135,R367.20,City Power,smart
+TSAM-A005,Michael Erasmus,Block A House 5 Tembisa,2/13/2024,11:35:50,155,R421.60,City Power,smart
+TSAM-A006,Sarah Ngcobo,Block A House 6 Tembisa,2/5/2025,15:40:22,170,R462.40,City Power,smart
+TSAM-A007,Jonathan Pieterse,Block A House 7 Tembisa,2/10/2024,9:55:33,125,R340.00,City Power,smart
+TSAM-A008,Thandeka Zulu,Block A House 8 Tembisa,2/7/2024,16:15:45,180,R489.60,City Power,smart
+TSAM-A009,Kevin Govender,Block A House 9 Tembisa,2/12/2024,12:30:10,140,R380.80,City Power,smart
+TSAM-A010,Nosipho Mkhize,Block A House 10 Tembisa,2/4/2025,10:45:27,160,R435.20,City Power,smart
+TSAM-A011,Pieter Van Wyk,Block A House 11 Tembisa,2/15/2024,8:55:40,150,R408.00,City Power,smart
+TSAM-A012,Nomthandazo Langa,Block A House 12 Tembisa,2/2/2025,16:20:15,175,R476.00,City Power,smart
+TSAM-A013,Ahmed Rajah,Block A House 13 Tembisa,2/9/2024,11:10:33,130,R353.60,City Power,smart
+TSAM-A014,Elizabeth Morake,Block A House 14 Tembisa,2/6/2024,14:40:50,190,R516.80,City Power,smart
+TSAM-A015,Thabo Ledwaba,Block A House 15 Tembisa,2/13/2024,9:25:22,145,R394.40,City Power,smart
+TSAM-B001,Moses Mokoena,Block B House 1 Tembisa,2/5/2025,11:05:33,0,R0.00,City Power,smart
+TSAM-B002,Lindiwe Shabangu,Block B House 2 Tembisa,2/14/2024,15:55:27,155,R421.60,City Power,smart
+TSAC-B003,Isaac Mthethwa,Block B House 3 Tembisa,2/7/2024,8:40:12,180,R489.60,City Power,prepaid
+TSAC-B004,Rebecca Ngubane,Block B House 4 Tembisa,2/9/2024,12:35:50,125,R340.00,City Power,prepaid
+TSAC-B005,Sibusiso Madonsela,Block B House 5 Tembisa,2/15/2024,10:20:33,170,R462.40,City Power,prepaid
+TSAC-B006,Lerato Mosia,Block B House 6 Tembisa,2/4/2024,16:45:15,140,R380.80,City Power,prepaid
+TSAC-B007,Nthabiseng Maluleke,Block B House 7 Tembisa,2/11/2024,9:30:50,160,R435.20,City Power,prepaid
+TSAC-B008,Kagiso Sekoati,Block B House 8 Tembisa,2/6/2024,14:10:22,135,R367.20,City Power,prepaid
+TSAC-B009,Mmabatho Mokwena,Block B House 9 Tembisa,2/13/2024,11:55:40,190,R516.80,City Power,prepaid
+TSAC-B010,Vusi Nxumalo,Block B House 10 Tembisa,2/2/2025,15:25:33,145,R394.40,City Power,prepaid
+TSAC-B011,Mapula Mathebula,Block B House 11 Tembisa,2/10/2024,8:15:50,175,R476.00,City Power,prepaid
+TSAC-B012,Busisiwe Zungu,Block B House 12 Tembisa,2/7/2024,16:40:15,130,R353.60,City Power,prepaid
+TSAC-B013,Kgosi Malepe,Block B House 13 Tembisa,2/14/2024,10:30:22,165,R448.80,City Power,prepaid
+TSAC-B014,Palesa Mkhwanazi,Block B House 14 Tembisa,2/5/2024,13:55:40,150,R408.00,City Power,prepaid
+TSAC-B015,Themba Radebe,Block B House 15 Tembisa,2/12/2024,9:20:33,180,R489.60,City Power,prepaid
